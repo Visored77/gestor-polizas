@@ -2,7 +2,7 @@ package com.gestor.polizas.mapper;
 
 import com.gestor.polizas.dto.PolizaRequest;
 import com.gestor.polizas.dto.PolizaResponse;
-import com.gestor.polizas.entity.EstadoPoliza;
+import com.gestor.polizas.entity.enums.EstadoPoliza;
 import com.gestor.polizas.entity.Poliza;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +16,8 @@ public class PolizaMapper {
         return poliza;
     }
 
-    /** Aplica los datos del request sobre una entidad existente (crear/actualizar). */
-    public void aplicar(Poliza poliza, PolizaRequest request) {
+    /** Aplica los datos del request sobre una entidad nueva. */
+    private void aplicar(Poliza poliza, PolizaRequest request) {
         poliza.setTipoPoliza(request.tipoPoliza());
         poliza.setTomadorNombre(request.tomadorNombre());
         poliza.setTomadorDocumento(request.tomadorDocumento());

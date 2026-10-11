@@ -1,14 +1,13 @@
 package com.gestor.polizas.service;
 
-import com.gestor.polizas.core.AccionCore;
 import com.gestor.polizas.dto.PolizaRequest;
 import com.gestor.polizas.dto.PolizaResponse;
 import com.gestor.polizas.dto.RenovacionRequest;
-import com.gestor.polizas.entity.EstadoPoliza;
-import com.gestor.polizas.entity.EstadoRiesgo;
 import com.gestor.polizas.entity.Poliza;
 import com.gestor.polizas.entity.Riesgo;
-import com.gestor.polizas.entity.TipoPoliza;
+import com.gestor.polizas.entity.enums.EstadoPoliza;
+import com.gestor.polizas.entity.enums.EstadoRiesgo;
+import com.gestor.polizas.entity.enums.TipoPoliza;
 import com.gestor.polizas.exception.RecursoNoEncontradoException;
 import com.gestor.polizas.exception.ReglaNegocioException;
 import com.gestor.polizas.mapper.PolizaMapper;
@@ -31,16 +30,13 @@ public class PolizaService {
     private final PolizaRepository polizaRepository;
     private final RiesgoRepository riesgoRepository;
     private final PolizaMapper polizaMapper;
-    private final SincronizacionCoreService sincronizacionCore;
 
     public PolizaService(PolizaRepository polizaRepository,
                          RiesgoRepository riesgoRepository,
-                         PolizaMapper polizaMapper,
-                         SincronizacionCoreService sincronizacionCore) {
+                         PolizaMapper polizaMapper) {
         this.polizaRepository = polizaRepository;
         this.riesgoRepository = riesgoRepository;
         this.polizaMapper = polizaMapper;
-        this.sincronizacionCore = sincronizacionCore;
     }
 
     @Transactional(readOnly = true)
@@ -66,25 +62,13 @@ public class PolizaService {
         validarVigencia(request);
         Poliza poliza = polizaMapper.aEntidad(request);
         poliza.setEstado(EstadoPoliza.ACTIVA);
-        Poliza guardada = polizaRepository.save(poliza);
-        // Sincronizacion con el CORE: creacion cambia el estado del sistema.
-        sincronizacionCore.sincronizar(AccionCore.CREACION_POLIZA, guardada, polizaMapper.aResponse(guardada));
-        return polizaMapper.aResponse(guardada);
-    }
-
-    public PolizaResponse actualizar(Integer id, PolizaRequest request) {
-        validarVigencia(request);
-        Poliza poliza = buscar(id);
-        polizaMapper.aplicar(poliza, request);
-        Poliza guardada = polizaRepository.save(poliza);
-        sincronizacionCore.sincronizar(AccionCore.MODIFICACION_POLIZA, guardada, polizaMapper.aResponse(guardada));
-        return polizaMapper.aResponse(guardada);
+        return polizaMapper.aResponse(polizaRepository.save(poliza));
     }
 
     /**
      * Renueva la poliza por el mismo periodo de vigencia inicial, ajustando el
      * canon mensual segun el incremento del IPC. Recalcula la prima y desplaza
-     * la vigencia. Marca la poliza anterior como RENOVADA.
+     * la vigencia. Marca la poliza como RENOVADA.
      */
     public PolizaResponse renovar(Integer id, RenovacionRequest request) {
         Poliza poliza = buscar(id);
@@ -106,12 +90,10 @@ public class PolizaService {
         poliza.setValorPrima(polizaMapper.calcularPrima(nuevoCanon, mesesVigencia));
         poliza.setEstado(EstadoPoliza.RENOVADA);
 
-        Poliza guardada = polizaRepository.save(poliza);
-        sincronizacionCore.sincronizar(AccionCore.RENOVACION_POLIZA, guardada, polizaMapper.aResponse(guardada));
-        return polizaMapper.aResponse(guardada);
+        return polizaMapper.aResponse(polizaRepository.save(poliza));
     }
 
-    /** Cancela la poliza y, en cascada, todos sus riesgos activos. Sincroniza con el CORE. */
+    /** Cancela la poliza y, en cascada, todos sus riesgos activos. */
     public PolizaResponse cancelar(Integer id) {
         Poliza poliza = buscar(id);
         if (poliza.getEstado() == EstadoPoliza.CANCELADA) {
@@ -128,13 +110,7 @@ public class PolizaService {
         riesgoRepository.saveAll(riesgos);
 
         poliza.setEstado(EstadoPoliza.CANCELADA);
-        Poliza guardada = polizaRepository.save(poliza);
-        sincronizacionCore.sincronizar(AccionCore.CANCELACION_POLIZA, guardada, polizaMapper.aResponse(guardada));
-        return polizaMapper.aResponse(guardada);
-    }
-
-    public void eliminar(Integer id) {
-        polizaRepository.delete(buscar(id));
+        return polizaMapper.aResponse(polizaRepository.save(poliza));
     }
 
     private void validarVigencia(PolizaRequest request) {

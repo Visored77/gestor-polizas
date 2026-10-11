@@ -1,6 +1,6 @@
 package com.gestor.polizas.dto;
 
-import com.gestor.polizas.entity.EstadoRiesgo;
+import com.gestor.polizas.entity.enums.EstadoRiesgo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

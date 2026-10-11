@@ -1,7 +1,7 @@
 package com.gestor.polizas.dto;
 
-import com.gestor.polizas.entity.EstadoPoliza;
-import com.gestor.polizas.entity.TipoPoliza;
+import com.gestor.polizas.entity.enums.EstadoPoliza;
+import com.gestor.polizas.entity.enums.TipoPoliza;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

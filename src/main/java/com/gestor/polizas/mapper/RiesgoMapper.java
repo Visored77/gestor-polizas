@@ -2,7 +2,7 @@ package com.gestor.polizas.mapper;
 
 import com.gestor.polizas.dto.RiesgoRequest;
 import com.gestor.polizas.dto.RiesgoResponse;
-import com.gestor.polizas.entity.EstadoRiesgo;
+import com.gestor.polizas.entity.enums.EstadoRiesgo;
 import com.gestor.polizas.entity.Riesgo;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ public class RiesgoMapper {
         return riesgo;
     }
 
-    public void aplicar(Riesgo riesgo, RiesgoRequest request) {
+    private void aplicar(Riesgo riesgo, RiesgoRequest request) {
         riesgo.setInmuebleDireccion(request.inmuebleDireccion());
         riesgo.setArrendatarioNombre(request.arrendatarioNombre());
         riesgo.setArrendatarioDocumento(request.arrendatarioDocumento());

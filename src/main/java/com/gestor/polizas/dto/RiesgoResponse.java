@@ -1,6 +1,6 @@
 package com.gestor.polizas.dto;
 
-import com.gestor.polizas.entity.EstadoRiesgo;
+import com.gestor.polizas.entity.enums.EstadoRiesgo;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

@@ -1,8 +1,8 @@
 package com.gestor.polizas.repository;
 
-import com.gestor.polizas.entity.EstadoPoliza;
+import com.gestor.polizas.entity.enums.EstadoPoliza;
 import com.gestor.polizas.entity.Poliza;
-import com.gestor.polizas.entity.TipoPoliza;
+import com.gestor.polizas.entity.enums.TipoPoliza;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -1,6 +1,8 @@
 package com.gestor.polizas.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gestor.polizas.entity.enums.EstadoPoliza;
+import com.gestor.polizas.entity.enums.TipoPoliza;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
