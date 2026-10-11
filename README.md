@@ -27,9 +27,11 @@ Reglas de negocio:
 ## Requisitos previos
 
 - JDK 21 o superior (incluye `javac`)
-- Una instancia de MySQL con la base de datos `gestion_polizas` y las tablas `poliza` y `riesgo`
+- MySQL 8 (local, Docker o Podman)
 
-### Levantar MySQL con Podman/Docker
+## Montar la base de datos
+
+### 1. Levantar MySQL con Podman/Docker
 
 ```bash
 podman run -d --name mi-mysql \
@@ -39,6 +41,38 @@ podman run -d --name mi-mysql \
   -v mysql-data:/var/lib/mysql \
   docker.io/library/mysql:8
 ```
+
+(Con Docker, reemplaza `podman` por `docker`.)
+
+### 2. Crear el esquema (tablas `poliza` y `riesgo`)
+
+El DDL está en [`src/main/resources/schema.sql`](src/main/resources/schema.sql). Ejecútalo:
+
+```bash
+# opcion A: desde el contenedor
+podman exec -i mi-mysql mysql -uroot -proot123 < src/main/resources/schema.sql
+
+# opcion B: con un cliente MySQL local
+mysql -h 127.0.0.1 -P 3306 -uroot -proot123 < src/main/resources/schema.sql
+```
+
+El script crea la base `gestion_polizas` (si no existe) y las tablas `poliza` y
+`riesgo` con su relación (una póliza tiene uno o varios riesgos).
+
+También puedes ejecutarlo desde un cliente gráfico (MySQL Workbench, DBeaver)
+abriendo el archivo `schema.sql` y corriéndolo.
+
+### 3. Cargar datos de ejemplo (opcional)
+
+Para poblar la base con datos de prueba (10 pólizas individuales y 5 colectivas
+con 3, 4, 5, 6 y 7 riesgos), ejecuta
+[`src/main/resources/data.sql`](src/main/resources/data.sql):
+
+```bash
+podman exec -i mi-mysql mysql -uroot -proot123 < src/main/resources/data.sql
+```
+
+> Nota: `data.sql` borra los datos existentes de `poliza` y `riesgo` antes de insertar.
 
 ## Configuración
 
