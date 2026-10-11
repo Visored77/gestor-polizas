@@ -1,6 +1,5 @@
 package com.gestor.polizas.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gestor.polizas.entity.enums.EstadoRiesgo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -25,7 +24,6 @@ public class Riesgo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "poliza_id", nullable = false)
-    @JsonIgnore
     private Poliza poliza;
 
     @NotBlank

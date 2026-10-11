@@ -14,12 +14,20 @@ API REST para la gestión de pólizas de arrendamiento, construida con Spring Bo
 
 - **Póliza** (`poliza`): datos del tomador, asegurado, beneficiario, vigencia y valores económicos.
 - **Riesgo** (`riesgo`): inmuebles y arrendatarios amparados por una póliza.
-- **Auditoría Core** (`auditoria_core`): registro de sincronización con el CORE legado.
+
+Reglas de negocio:
+
+- La prima se calcula automáticamente: `canon_mensual * meses_vigencia`.
+- Una póliza individual tiene un único riesgo; una colectiva puede tener varios.
+- Solo las pólizas colectivas admiten agregar riesgos.
+- No se puede renovar una póliza cancelada.
+- Al cancelar una póliza se cancelan en cascada todos sus riesgos.
+- La renovación incrementa el canon según el IPC y recalcula la prima; el estado pasa a `RENOVADA`.
 
 ## Requisitos previos
 
 - JDK 21 o superior (incluye `javac`)
-- Una instancia de MySQL con la base de datos `gestion_polizas`
+- Una instancia de MySQL con la base de datos `gestion_polizas` y las tablas `poliza` y `riesgo`
 
 ### Levantar MySQL con Podman/Docker
 
@@ -32,12 +40,10 @@ podman run -d --name mi-mysql \
   docker.io/library/mysql:8
 ```
 
-El esquema (tablas `poliza`, `riesgo`, `auditoria_core`) debe existir en la base `gestion_polizas`.
-
 ## Configuración
 
 La conexión se define en `src/main/resources/application.properties`. Ajusta usuario,
-contraseña y URL según tu entorno.
+contraseña y URL según tu entorno. La clave del mock del CORE se configura con `api.key`.
 
 ## Ejecutar
 
@@ -47,23 +53,33 @@ contraseña y URL según tu entorno.
 
 La aplicación queda disponible en `http://localhost:8080`.
 
-## Endpoints principales
+## Endpoints
 
-| Método | Ruta                              | Descripción                        |
-|--------|-----------------------------------|------------------------------------|
-| GET    | `/api/polizas`                    | Listar pólizas                     |
-| GET    | `/api/polizas/{id}`               | Obtener una póliza                 |
-| POST   | `/api/polizas`                    | Crear póliza                       |
-| PUT    | `/api/polizas/{id}`               | Actualizar póliza                  |
-| DELETE | `/api/polizas/{id}`               | Eliminar póliza                    |
-| GET    | `/api/riesgos`                    | Listar riesgos                     |
-| GET    | `/api/riesgos/poliza/{polizaId}`  | Listar riesgos de una póliza       |
-| POST   | `/api/riesgos/poliza/{polizaId}`  | Crear riesgo asociado a una póliza |
-| GET    | `/api/auditorias`                 | Listar registros de auditoría      |
-| POST   | `/api/auditorias`                 | Crear registro de auditoría        |
+| Método | Ruta                              | Descripción                                   |
+|--------|-----------------------------------|-----------------------------------------------|
+| GET    | `/polizas`                        | Listar pólizas (filtros `?tipo=` y `?estado=`)|
+| GET    | `/polizas/{id}`                   | Obtener una póliza                            |
+| POST   | `/polizas`                        | Crear póliza                                  |
+| GET    | `/polizas/{id}/riesgos`           | Listar riesgos de una póliza                  |
+| POST   | `/polizas/{id}/riesgos`           | Agregar riesgo (solo pólizas colectivas)      |
+| POST   | `/polizas/{id}/renovar`           | Renovar póliza (ajuste por IPC)               |
+| POST   | `/polizas/{id}/cancelar`          | Cancelar póliza (cascada a sus riesgos)       |
+| POST   | `/riesgos/{id}/cancelar`          | Cancelar un riesgo                            |
+| POST   | `/core-mock/evento`               | Mock del CORE: registra el evento en logs     |
 
-## Compilar
+### Seguridad
+
+El endpoint del mock del CORE (`/core-mock/**`) exige el header `x-api-key` con la clave
+configurada (`api.key`, por defecto `123456`). El resto de endpoints no la requieren.
+
+## Probar con Postman
+
+En `postman/Gestor-Polizas.postman_collection.json` hay una colección lista para importar
+con todos los endpoints.
+
+## Compilar y probar
 
 ```bash
-./mvnw clean package
+./mvnw clean package   # compila, ejecuta tests y genera el jar
+./mvnw test            # solo tests
 ```

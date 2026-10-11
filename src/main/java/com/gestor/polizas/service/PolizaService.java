@@ -1,5 +1,6 @@
 package com.gestor.polizas.service;
 
+import com.gestor.polizas.adapter.AdapterCore;
 import com.gestor.polizas.dto.PolizaRequest;
 import com.gestor.polizas.dto.PolizaResponse;
 import com.gestor.polizas.dto.RenovacionRequest;
@@ -30,13 +31,16 @@ public class PolizaService {
     private final PolizaRepository polizaRepository;
     private final RiesgoRepository riesgoRepository;
     private final PolizaMapper polizaMapper;
+    private final AdapterCore adapterCore;
 
     public PolizaService(PolizaRepository polizaRepository,
                          RiesgoRepository riesgoRepository,
-                         PolizaMapper polizaMapper) {
+                         PolizaMapper polizaMapper,
+                         AdapterCore adapterCore) {
         this.polizaRepository = polizaRepository;
         this.riesgoRepository = riesgoRepository;
         this.polizaMapper = polizaMapper;
+        this.adapterCore = adapterCore;
     }
 
     @Transactional(readOnly = true)
@@ -62,7 +66,9 @@ public class PolizaService {
         validarVigencia(request);
         Poliza poliza = polizaMapper.aEntidad(request);
         poliza.setEstado(EstadoPoliza.ACTIVA);
-        return polizaMapper.aResponse(polizaRepository.save(poliza));
+        Poliza guardada = polizaRepository.save(poliza);
+        adapterCore.notificarEvento("CREACION", guardada.getId());
+        return polizaMapper.aResponse(guardada);
     }
 
     /**
@@ -90,7 +96,9 @@ public class PolizaService {
         poliza.setValorPrima(polizaMapper.calcularPrima(nuevoCanon, mesesVigencia));
         poliza.setEstado(EstadoPoliza.RENOVADA);
 
-        return polizaMapper.aResponse(polizaRepository.save(poliza));
+        Poliza guardada = polizaRepository.save(poliza);
+        adapterCore.notificarEvento("RENOVACION", guardada.getId());
+        return polizaMapper.aResponse(guardada);
     }
 
     /** Cancela la poliza y, en cascada, todos sus riesgos activos. */
@@ -110,7 +118,9 @@ public class PolizaService {
         riesgoRepository.saveAll(riesgos);
 
         poliza.setEstado(EstadoPoliza.CANCELADA);
-        return polizaMapper.aResponse(polizaRepository.save(poliza));
+        Poliza guardada = polizaRepository.save(poliza);
+        adapterCore.notificarEvento("CANCELACION", guardada.getId());
+        return polizaMapper.aResponse(guardada);
     }
 
     private void validarVigencia(PolizaRequest request) {

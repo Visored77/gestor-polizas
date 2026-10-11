@@ -1,6 +1,5 @@
 package com.gestor.polizas.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gestor.polizas.entity.enums.EstadoPoliza;
 import com.gestor.polizas.entity.enums.TipoPoliza;
 import jakarta.persistence.*;
@@ -92,6 +91,5 @@ public class Poliza {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "poliza", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<Riesgo> riesgos = new ArrayList<>();
 }

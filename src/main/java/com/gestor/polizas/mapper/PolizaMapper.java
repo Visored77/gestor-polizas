@@ -6,6 +6,8 @@ import com.gestor.polizas.entity.enums.EstadoPoliza;
 import com.gestor.polizas.entity.Poliza;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
 public class PolizaMapper {
 
@@ -39,11 +41,11 @@ public class PolizaMapper {
     }
 
     /** Calcula la prima: canon mensual multiplicado por el numero de meses de vigencia. */
-    public java.math.BigDecimal calcularPrima(java.math.BigDecimal canonMensual, Integer mesesVigencia) {
+    public BigDecimal calcularPrima(BigDecimal canonMensual, Integer mesesVigencia) {
         if (canonMensual == null || mesesVigencia == null) {
             return null;
         }
-        return canonMensual.multiply(java.math.BigDecimal.valueOf(mesesVigencia));
+        return canonMensual.multiply(BigDecimal.valueOf(mesesVigencia));
     }
 
     public PolizaResponse aResponse(Poliza poliza) {

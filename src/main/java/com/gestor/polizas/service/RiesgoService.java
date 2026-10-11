@@ -1,5 +1,6 @@
 package com.gestor.polizas.service;
 
+import com.gestor.polizas.adapter.AdapterCore;
 import com.gestor.polizas.dto.RiesgoRequest;
 import com.gestor.polizas.dto.RiesgoResponse;
 import com.gestor.polizas.entity.Poliza;
@@ -22,13 +23,16 @@ public class RiesgoService {
     private final RiesgoRepository riesgoRepository;
     private final RiesgoMapper riesgoMapper;
     private final PolizaService polizaService;
+    private final AdapterCore adapterCore;
 
     public RiesgoService(RiesgoRepository riesgoRepository,
                          RiesgoMapper riesgoMapper,
-                         PolizaService polizaService) {
+                         PolizaService polizaService,
+                         AdapterCore adapterCore) {
         this.riesgoRepository = riesgoRepository;
         this.riesgoMapper = riesgoMapper;
         this.polizaService = polizaService;
+        this.adapterCore = adapterCore;
     }
 
     @Transactional(readOnly = true)
@@ -59,7 +63,9 @@ public class RiesgoService {
         Riesgo riesgo = riesgoMapper.aEntidad(request);
         riesgo.setPoliza(poliza);
         riesgo.setEstado(EstadoRiesgo.ACTIVO);
-        return riesgoMapper.aResponse(riesgoRepository.save(riesgo));
+        Riesgo guardado = riesgoRepository.save(riesgo);
+        adapterCore.notificarEvento("AGREGAR_RIESGO", poliza.getId());
+        return riesgoMapper.aResponse(guardado);
     }
 
     /**
@@ -79,6 +85,8 @@ public class RiesgoService {
         }
 
         riesgo.setEstado(EstadoRiesgo.CANCELADO);
-        return riesgoMapper.aResponse(riesgoRepository.save(riesgo));
+        Riesgo guardado = riesgoRepository.save(riesgo);
+        adapterCore.notificarEvento("CANCELAR_RIESGO", riesgo.getPoliza().getId());
+        return riesgoMapper.aResponse(guardado);
     }
 }

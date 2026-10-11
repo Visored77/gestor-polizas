@@ -1,0 +1,288 @@
+{
+  "info": {
+    "name": "Gestor de Polizas API",
+    "description": "Coleccion para probar la API de gestion de polizas de arrendamiento (Spring Boot).\n\nVariables:\n- baseUrl: URL del servicio (http://localhost:8080)\n- apiKey: clave del mock del CORE (123456)\n- polizaColectivaId / polizaIndividualId / riesgoId: se autocompletan al crear.\n\nSeguridad: solo /core-mock/** exige el header x-api-key.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "apiKey",
+      "value": "123456"
+    },
+    {
+      "key": "polizaColectivaId",
+      "value": "11"
+    },
+    {
+      "key": "polizaIndividualId",
+      "value": "1"
+    },
+    {
+      "key": "riesgoId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Polizas",
+      "item": [
+        {
+          "name": "Crear poliza INDIVIDUAL",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('polizaIndividualId', pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoPoliza\": \"INDIVIDUAL\",\n  \"tomadorNombre\": \"Juan Perez\",\n  \"tomadorDocumento\": \"CC12345\",\n  \"aseguradoNombre\": \"Juan Perez\",\n  \"aseguradoDocumento\": \"CC12345\",\n  \"beneficiarioNombre\": \"Arrendador Lopez\",\n  \"beneficiarioDocumento\": \"CC67890\",\n  \"vigenciaInicio\": \"2026-01-01\",\n  \"vigenciaFin\": \"2027-01-01\",\n  \"canonMensual\": 1200000.00,\n  \"mesesVigencia\": 12\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/polizas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "polizas"
+              ]
+            },
+            "description": "La prima se calcula automaticamente (canon * meses). No se envia valorPrima."
+          }
+        },
+        {
+          "name": "Crear poliza COLECTIVA",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('polizaColectivaId', pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoPoliza\": \"COLECTIVA\",\n  \"tomadorNombre\": \"Inmobiliaria XYZ SAS\",\n  \"tomadorDocumento\": \"NIT900123\",\n  \"aseguradoNombre\": \"Arrendatarios XYZ\",\n  \"aseguradoDocumento\": \"NIT900124\",\n  \"beneficiarioNombre\": \"Arrendadores XYZ\",\n  \"beneficiarioDocumento\": \"NIT900125\",\n  \"vigenciaInicio\": \"2026-01-01\",\n  \"vigenciaFin\": \"2027-01-01\",\n  \"canonMensual\": 5000000.00,\n  \"mesesVigencia\": 12\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/polizas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "polizas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar polizas (filtros opcionales tipo/estado)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/polizas?tipo=COLECTIVA&estado=ACTIVA",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "polizas"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "COLECTIVA",
+                  "description": "INDIVIDUAL | COLECTIVA (opcional)"
+                },
+                {
+                  "key": "estado",
+                  "value": "ACTIVA",
+                  "description": "ACTIVA | RENOVADA | CANCELADA | VENCIDA (opcional)"
+                }
+              ]
+            },
+            "description": "Ambos query params son opcionales. Quita uno o ambos para listar sin filtrar."
+          }
+        },
+        {
+          "name": "Obtener poliza por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/polizas/{{polizaColectivaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "polizas",
+                "{{polizaColectivaId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Renovar poliza (ajuste por IPC)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ipcPorcentaje\": 7.5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/polizas/{{polizaColectivaId}}/renovar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "polizas",
+                "{{polizaColectivaId}}",
+                "renovar"
+              ]
+            },
+            "description": "Incrementa canon y prima segun IPC. Estado -> RENOVADA. Una poliza CANCELADA no se puede renovar (409)."
+          }
+        },
+        {
+          "name": "Cancelar poliza (cascada a riesgos)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/polizas/{{polizaColectivaId}}/cancelar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "polizas",
+                "{{polizaColectivaId}}",
+                "cancelar"
+              ]
+            },
+            "description": "Cancela la poliza y, en cascada, todos sus riesgos."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Riesgos",
+      "item": [
+        {
+          "name": "Listar riesgos de una poliza",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/polizas/{{polizaColectivaId}}/riesgos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "polizas",
+                "{{polizaColectivaId}}",
+                "riesgos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Agregar riesgo (solo COLECTIVA)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('riesgoId', pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inmuebleDireccion\": \"Torre Nueva Apto 801\",\n  \"arrendatarioNombre\": \"Carlos Ruiz\",\n  \"arrendatarioDocumento\": \"CC55555\",\n  \"canonIndividual\": 1500000.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/polizas/{{polizaColectivaId}}/riesgos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "polizas",
+                "{{polizaColectivaId}}",
+                "riesgos"
+              ]
+            },
+            "description": "Solo permitido en polizas COLECTIVAS. En una individual devuelve 409."
+          }
+        },
+        {
+          "name": "Cancelar riesgo",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/riesgos/{{riesgoId}}/cancelar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "riesgos",
+                "{{riesgoId}}",
+                "cancelar"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
