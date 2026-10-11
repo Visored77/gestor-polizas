@@ -24,6 +24,16 @@ public class ManejadorGlobalExcepciones {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ReglaNegocioException.class)
+    public ResponseEntity<Map<String, Object>> manejarReglaNegocio(ReglaNegocioException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("estado", HttpStatus.CONFLICT.value());
+        body.put("error", "Regla de negocio violada");
+        body.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> manejarValidacion(MethodArgumentNotValidException ex) {
         Map<String, String> errores = new HashMap<>();

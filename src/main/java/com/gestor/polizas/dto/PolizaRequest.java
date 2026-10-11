@@ -49,10 +49,6 @@ public record PolizaRequest(
         @Positive(message = "Los meses de vigencia deben ser mayor que cero")
         Integer mesesVigencia,
 
-        @NotNull(message = "El valor de la prima es obligatorio")
-        @Positive(message = "El valor de la prima debe ser mayor que cero")
-        BigDecimal valorPrima,
-
         EstadoPoliza estado
 ) {
 }

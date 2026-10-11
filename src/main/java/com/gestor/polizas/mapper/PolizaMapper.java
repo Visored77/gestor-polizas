@@ -29,12 +29,21 @@ public class PolizaMapper {
         poliza.setVigenciaFin(request.vigenciaFin());
         poliza.setCanonMensual(request.canonMensual());
         poliza.setMesesVigencia(request.mesesVigencia());
-        poliza.setValorPrima(request.valorPrima());
+        // Regla de negocio: la prima se calcula automaticamente (canon mensual * meses de vigencia)
+        poliza.setValorPrima(calcularPrima(request.canonMensual(), request.mesesVigencia()));
         if (request.estado() != null) {
             poliza.setEstado(request.estado());
         } else if (poliza.getEstado() == null) {
             poliza.setEstado(EstadoPoliza.ACTIVA);
         }
+    }
+
+    /** Calcula la prima: canon mensual multiplicado por el numero de meses de vigencia. */
+    public java.math.BigDecimal calcularPrima(java.math.BigDecimal canonMensual, Integer mesesVigencia) {
+        if (canonMensual == null || mesesVigencia == null) {
+            return null;
+        }
+        return canonMensual.multiply(java.math.BigDecimal.valueOf(mesesVigencia));
     }
 
     public PolizaResponse aResponse(Poliza poliza) {

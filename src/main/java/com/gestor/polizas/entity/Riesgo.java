@@ -48,10 +48,10 @@ public class Riesgo {
     private EstadoRiesgo estado = EstadoRiesgo.ACTIVO;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false, insertable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at", insertable = false)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }
