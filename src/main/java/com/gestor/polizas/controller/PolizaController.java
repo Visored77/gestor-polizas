@@ -51,7 +51,7 @@ public class PolizaController {
         return riesgoService.listarPorPoliza(id);
     }
 
-    /** 5. Agregar un riesgo a una poliza (solo si es Colectiva). */
+    /** 5. Agregar un riesgo a una poliza (individual: maximo uno; colectiva: varios). */
     @PostMapping("/{id}/riesgos")
     public ResponseEntity<RiesgoResponse> agregarRiesgo(@PathVariable Integer id,
                                                         @Valid @RequestBody RiesgoRequest request) {

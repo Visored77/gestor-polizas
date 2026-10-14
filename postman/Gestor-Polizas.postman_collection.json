@@ -224,7 +224,7 @@
           }
         },
         {
-          "name": "Agregar riesgo (solo COLECTIVA)",
+          "name": "Agregar riesgo a una poliza",
           "event": [
             {
               "listen": "test",
@@ -261,11 +261,11 @@
                 "riesgos"
               ]
             },
-            "description": "Solo permitido en polizas COLECTIVAS. En una individual devuelve 409."
+            "description": "Agrega un riesgo a la poliza. En una poliza COLECTIVA se pueden agregar varios riesgos. En una poliza INDIVIDUAL solo se admite un riesgo: si ya tiene uno, devuelve 409."
           }
         },
         {
-          "name": "Cancelar riesgo",
+          "name": "Cancelar riesgo (solo COLECTIVA)",
           "request": {
             "method": "POST",
             "header": [],
@@ -279,7 +279,8 @@
                 "{{riesgoId}}",
                 "cancelar"
               ]
-            }
+            },
+            "description": "Cancela un riesgo. Solo aplica a polizas COLECTIVAS. En una poliza INDIVIDUAL no se permite cancelar su unico riesgo (devuelve 409); en ese caso se debe cancelar la poliza."
           }
         }
       ]

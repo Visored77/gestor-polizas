@@ -10,4 +10,6 @@ import java.util.List;
 public interface RiesgoRepository extends JpaRepository<Riesgo, Integer> {
 
     List<Riesgo> findByPolizaId(Integer polizaId);
+
+    long countByPolizaId(Integer polizaId);
 }

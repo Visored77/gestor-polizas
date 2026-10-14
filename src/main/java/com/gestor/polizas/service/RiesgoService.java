@@ -48,16 +48,20 @@ public class RiesgoService {
     }
 
     /**
-     * Agrega un riesgo a una poliza. Segun el alcance esencial, solo las polizas
-     * COLECTIVAS admiten agregar riesgos por este endpoint. Las individuales
-     * tienen su unico riesgo definido al crearse.
+     * Agrega un riesgo a una poliza.
+     * <ul>
+     *   <li>INDIVIDUAL: ampara un unico inmueble, por lo que solo admite un riesgo.
+     *       Si ya tiene uno, no se permite crear mas.</li>
+     *   <li>COLECTIVA: puede amparar varios inmuebles; admite agregar varios riesgos.</li>
+     * </ul>
      */
     public RiesgoResponse crear(Integer polizaId, RiesgoRequest request) {
         Poliza poliza = polizaService.buscar(polizaId);
 
-        if (poliza.getTipoPoliza() != TipoPoliza.COLECTIVA) {
+        if (poliza.getTipoPoliza() == TipoPoliza.INDIVIDUAL
+                && riesgoRepository.countByPolizaId(polizaId) >= 1) {
             throw new ReglaNegocioException(
-                    "Solo las polizas colectivas pueden agregar riesgos. Una poliza individual tiene un unico riesgo");
+                    "Una poliza individual solo admite un riesgo; ya tiene uno registrado");
         }
 
         Riesgo riesgo = riesgoMapper.aEntidad(request);

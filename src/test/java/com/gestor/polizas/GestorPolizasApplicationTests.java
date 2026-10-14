@@ -82,13 +82,21 @@ class GestorPolizasApplicationTests {
     }
 
     @Test
-    void agregarRiesgo_soloColectiva() throws Exception {
+    void agregarRiesgo_individualMaximoUno_colectivaVarios() throws Exception {
+        // COLECTIVA: admite varios riesgos.
         int colectiva = crearPoliza(COLECTIVA);
         mvc.perform(post("/polizas/" + colectiva + "/riesgos").header(KEY, VAL)
                         .contentType(MediaType.APPLICATION_JSON).content(RIESGO))
                 .andExpect(status().isCreated());
+        mvc.perform(post("/polizas/" + colectiva + "/riesgos").header(KEY, VAL)
+                        .contentType(MediaType.APPLICATION_JSON).content(RIESGO))
+                .andExpect(status().isCreated());
 
+        // INDIVIDUAL: el primer riesgo se crea; el segundo se rechaza (409).
         int individual = crearPoliza(INDIVIDUAL);
+        mvc.perform(post("/polizas/" + individual + "/riesgos").header(KEY, VAL)
+                        .contentType(MediaType.APPLICATION_JSON).content(RIESGO))
+                .andExpect(status().isCreated());
         mvc.perform(post("/polizas/" + individual + "/riesgos").header(KEY, VAL)
                         .contentType(MediaType.APPLICATION_JSON).content(RIESGO))
                 .andExpect(status().isConflict());
